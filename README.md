@@ -1,7 +1,7 @@
 # Deep RL
 Repository for the course Deep reinforcement learning at University of Osnabrueck in the winter term 2020/2021.
 Repository contains solutions to the homework assignments and the final project.
-All projects are coded using the [ReAlly framework](https://github.com/geronimocharlie/ReAllY) by Charlie Lange.
+All homeworks are solved using the [ReAlly framework](https://github.com/geronimocharlie/ReAllY) by Charlie Lange.
 
 ### Homework 1
 Solving a gridworld environment using Watkins Q-Learning.
