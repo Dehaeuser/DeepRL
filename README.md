@@ -11,7 +11,7 @@ Solving the OpenAI gym environment [CartPole-v0](https://gym.openai.com/envs/Car
 a Vanilla-DQN approach.
 
 ### Homework 3
-Solving the OpenAI gym environment [LunarLanderContinuous-v2](https://gym.openai.com/envs/LunarLanderContinuous-v2/) using a Policy Gradient Algorithm.
+Solving the OpenAI gym environment [LunarLanderContinuous-v2](https://gym.openai.com/envs/LunarLanderContinuous-v2/) using a Policy Gradient Algorithm. Implemented in two ways: 1. Actor only model, 2. Advantage Actor-Critic model
 
 ### Final Project
 Reimplementing a Language Emergence Agent as published in [Mordatch & Abbeel (2018)](https://arxiv.org/pdf/1703.04908.pdf).
