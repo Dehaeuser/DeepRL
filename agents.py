@@ -5,18 +5,35 @@ import tensorflow as tf
 from tensorflow.keras.layers import Layer, Dense
 from tensorflow.keras.optimizers import Adam
 
+
+
+
 class Encoder(tf.keras.Model):
+    """
+    Encoder class for building speaker's and listener's encoder
+    The encoder receives a concept (as binary list) and returns a
+    dense representation.
+    """
     def __init__(self, units = 50):
         super(Encoder, self).__init__()
         self.input_layer = tf.keras.layers.InputLayer(input_shape = (self.categories_dim))
         self.act = tf.keras.layers.Dense(units, activation = 'sigmoid')
 
     def call(self, input_concept):
+        """
+        :param: input_concept: the binary list representing a concept
+        """
         x = self.input_layer(input_concept)
         output = self.act(x)
         return output
 
+
+
 class Receiver(tf.keras.Model):
+    """
+    Receiver's encoder. Receiver receives (in call function) a list of concepts (as binary arrays) and
+    returns a list of their dense representation using the Encoder class as encoder.
+    """
     def __init__(self, num_options, voc):
         super(Receiver, self).__init__()
         self.encoder = Encoder(voc)
@@ -34,7 +51,17 @@ class Receiver(tf.keras.Model):
 
 
 class Receiver_LSTM(tf.keras.Model):
+    """
+    LSTM network of the receiver. It consists of embedding layer and LSTM layer.
+    It receives (in call function) the message and returns a dense representation
+    of it.
+    """
     def __init__(self, vocab_size, embed_dim, hidden_size):
+        """
+        self.embedding: param::vocab_size:: size of the vocabulary
+                        param::embed_dim:: Dimension of the dense embedding
+        --> Die message besteht also aus zahlen und die höchste Zahl wäre vocab_size
+        """
         super(Receiver_LSTM, self).__init__()
         #PyTorch:
         # self.cell = LSTM(input_size=embed_dim, batch_first=True,
@@ -42,6 +69,7 @@ class Receiver_LSTM(tf.keras.Model):
         #
         # self.embedding = nn.Embedding(vocab_size, embed_dim)
 
+        #von Ossenkopf
         self.embedding = tf.keras.layers.Embedding(vocab_size, embed_dim)
         self.cell = tf.keras.LSTM(units =hidden_size )
 
@@ -61,6 +89,7 @@ class Sender_LSTM(tf.keras.Model):
         self.vocab_size = vocab_size
         self.num_layers = num_layers
         self.cell = tf.keras.LSTM(units = hidden_size)
+
     def call(encoding):
         """
         :param:encoding: Sender's Encoder encoding of target concept
@@ -72,14 +101,38 @@ def receiver_sampling(encoding, candidate_list, num_candidates):
     :param: encoding: listener's LSTM's encoding of speaker's message.
     :param: candidate_list: listener's encoding of distractors and target
     :return: guess of receiver about target
+    function calculates the dotproduct between the encoding and the candidate_list. Then it
+    forwards it through a softmax layer and samples from it. (that the Gibbs Distribution)
+
+    --> Weiß noch nicht, ob das alles so hinhaut mit den Dimensionen etc.
     """
-    #verstehe noch nicht genau wie das bei Ossenkopf funktioniert. Sie berechnet direkt das
-    #dot product für alle candidates und sendet das durch  F.log_softmax
+
+    #habe hier eine Mischung von Ossenkopf und Lazarido 2016 probiert
+
     for i in range(num_candidates):
         #dotproduct (von Lazaridou 2016 implementation in tensorflow)
-        dotproduct = tf.matmul(encoding,i)
+        #ggf muss man noch flatten
+        dotproducts.append(tf.matmul(encoding,i))
+    # stacks list of tensors into tensor
+    dotproducts = tf.stack(dotproducts)
+
+    ###HIER EHER AN LAZARIDOU 2016 ANNGELEHNT
+    #stimmt die dimension? Ossenkopf benutzt log_softmax, Lazarido2016 softmax
+    probs = tf.nn.softmax(dotproduct, dim=1)
+    distr = tfp.distributions.Categorical(logits=pre_logits)
+
+    if self.training:
+        sample = distr.sample()
+    else:
+        sample = pre_logits.argmax(dim=1)
+    log_prob = distr.log_prob(sample)
+
+    entropy = distr.entropy()
     #für was braucht man log_prob und entropy? Vielleicht für den Loss?
     return sample, log_prob, entropy
+
+
+
 
 
 
