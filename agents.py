@@ -27,7 +27,20 @@ class Encoder(tf.keras.Model):
         output = self.act(x)
         return output
 
+class AuxillaryNetwork(tf.keras.Model):
+    """
+    Class receives last hidden layer of speaker LSTM.
+    Returns predection of the listener's hidden layer after hearing the full message.
+    """
+    def __init__(self, hidden_size):
+        super(AuxillaryNetwork, self).__init__()
+        self.input_layer = tf.keras.layers.InputLayer(input_shape = hidden_size)
+        self.empathy = tf.keras.layers.Dense(hidden_size, activation = 'sigmoid')
 
+    def call(self, hidden):
+        x = input_layer(hidden)
+        encoded = empathy(x)
+        return encoded
 
 class Receiver(tf.keras.Model):
     """
@@ -130,6 +143,8 @@ def receiver_sampling(encoding, candidate_list, num_candidates):
     entropy = distr.entropy()
     #für was braucht man log_prob und entropy? Vielleicht für den Loss?
     return sample, log_prob, entropy
+
+
 
 
 
