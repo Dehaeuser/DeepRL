@@ -13,40 +13,52 @@ creates environment and game structure
 """
 NUM_DISTRACTORS = 9
 
+class ConceptData():
 
-def getInput(vocabulary):
-    """
-    returns name of target concept and list of attribute arrays
-    of target and all distractors
-    can be used when both sender and receiver see all inputs
-    """
-    input_concepts = random.sample(vocabulary.concept_list, NUM_DISTRACTORS+1)
-    target_concept = random.sample(input_concepts, 1)
+    def __init__(self, voc, num_distractors):
+        self.voc = voc
+        self.num_distractors = num_distractors
 
-    sender_receiver_input = []
-    for elem in input_concepts:
-        sender_receiver_input.append(vocabulary.parseConcept(elem))
-    sample = [sender_receiver_input, target_concept, sender_receiver_input]
-    return sample
+    def getInput(self):
+        """
+        returns name of target concept and list of attribute arrays
+        of target and all distractors
+        can be used when both sender and receiver see all inputs
+        """
+        input_concepts = random.sample(self.voc.concept_list, self.num_distractors+1)
+        target_concept = random.sample(input_concepts, 1)
 
-def getInputDifferent(vocabulary):
-    """
-    returns target concept and distractors divided into inputs for sender and
-    receiver
-    can be used when sender only receives target as input
-    """
-    input_concepts = random.sample(vocabulary.concept_list, NUM_DISTRACTORS+1)
-    target_concept = random.sample(input_concepts, 1)
+        sender_input = []
+        receiver_input = []
 
-    sender_input = vocabulary.parseConcept(target_concept)
-    receiver_input = []
-    for elem in input_concepts:
-        if elem == target_concept:
-            receiver_input.append(sender_input)
-        else:
-            receiver_input.append(vocabulary.parseConcept(elem))
-    sample = [sender_input, target_concept, receiver_input]
-    return sample
+        sender_input.append(self.voc.parseConcept(target_concept))
+        for elem in input_concepts:
+            if elem != target_concept:
+                sender_input.append(self.voc.parseConcept(elem))
+
+        for elem in input_concepts:
+            receiver_input.append(self.voc.parseConcept(elem))
+        sample = [sender_input, target_concept, receiver_input]
+        return sample
+
+    def getInputDifferent(self):
+        """
+        returns target concept and distractors divided into inputs for sender and
+        receiver
+        can be used when sender only receives target as input
+        """
+        input_concepts = random.sample(self.voc.concept_list, self.num_distractors+1)
+        target_concept = random.sample(input_concepts, 1)
+
+        sender_input = self.voc.parseConcept(target_concept)
+        receiver_input = []
+        for elem in input_concepts:
+            if elem == target_concept:
+                receiver_input.append(sender_input)
+            else:
+                receiver_input.append(self.voc.parseConcept(elem))
+        sample = [sender_input, target_concept, receiver_input]
+        return sample
 
 # pick target random from concepts
 
