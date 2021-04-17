@@ -72,22 +72,77 @@ class Receiver_LSTM(tf.keras.Model):
     It receives (in call function) the message and returns a dense representation
     of it.
     """
-    def __init__(self, vocab_size, embed_dim, hidden_size):
+    def __init__(self, vocab_size, embed_dim, hidden_size, masking_value =999):
         """
         self.embedding: param::vocab_size:: size of the vocabulary
                         param::embed_dim:: Dimension of the dense embedding
         --> Die message besteht also aus zahlen und die höchste Zahl wäre vocab_size
         """
+        self.masking_value = masking_value
         super(Receiver_LSTM, self).__init__()
+        self.embed_dim = embed_dim
         self.embedding = tf.keras.layers.Embedding(vocab_size, embed_dim)
+        self.mask = tf.keras.layers.Masking(mask_value = masking_value)
         self.cell = tf.keras.layers.LSTM(units =hidden_size )
 
-    def call(self, message, message_length):
-        ####
-         #find_lengths(message) müsste hier dann noch eingebaut werden.
+    def call(self, message, batch_size, max_len):
+        """
+        param:message: message that is outputted by the sender
+        batch_size: needed for get_padded_sequence
+        max_len : maximal length of message; needed for get_padded_sequence
+
+        Reihenfolge (zuerst embedding layer dann padding ist von Ossenkopf übernommen)
+        """
         emb = self.embedding(message)
-        output = self.cell(emb)
+        #lengths is a list with the repsective length of the messages (ist so lange wie batch_size)
+        lengths = find_lengths(message)
+        #padded_emb is padded tensor of emb
+        padded_emb = get_padded_sequence(emb, lengths,batch_size, max_len, self.embed_dim)
+        masked_emb = self.mask(emb)
+        output = self.cell(masked_emb)
         return output
+
+
+
+def find_lengths(messages):
+    """
+    param: messages: the messages outputted by the sender
+    function returns tensor that indicates how long the messages are. Function checkes if EOS symbol (which is 0) is reached.
+    """
+    message_as_list = message.numpy().tolist()
+    lengths = []
+
+    for i in message_as_list:
+        counter = 1
+        for j in i:
+            if not(j == 0):
+                counter = counter + 1
+            else:
+                break
+        lengths.append(counter)
+    return lengths
+
+
+
+def get_padded_sequence(embed, lengths, batch_size, max_len, embed_dim, masking_value = 999):
+
+    """
+    param:lengths: list that indicates the size of the message
+    param:batch_size: hier 32
+    param:max_len: maximal length of message; hier 5
+    param: embed_dim: hier 50
+
+    after we received the embedding, we need to mask/padd the values that are not actually part of the message because they were outputted after
+    the EOS- Symbol
+    """
+    emb_list = emb_tensor.numpy().tolist()
+    for i in range(batch_size):
+        laenge = lengths[i]
+        for j in range(max_len):
+            for k in  range(embed_dim):
+                if j > laenge:
+                    emb_list[i][j][k]= masking_value
+    return tf.convert_to_tensor(emb_list)
 
 class Sender_LSTM(tf.keras.Model):
     def __init__(self, vocab:size, embed_dim, hidden_size, max_len): #force_eos =True (pytorch; weiß nicht, ob wir das brauchen)
@@ -111,7 +166,6 @@ def receiver_sampling(encoding, candidate_list, num_candidates, training = True)
     :return: sample: guess about which of the samples is the target
     :return: log_prob: log probability that the chosen sample is indeed the target
     :return: entropy: returns entropy of the distribution
-
     function calculates the dotproduct between the encoding and the candidate_list. Then it
     forwards it through a softmax layer and samples from it. (that the Gibbs Distribution)
     """
@@ -146,7 +200,6 @@ class RnnSenderReinforce(nn.Module):
     the wrapped agent returns the initial hidden state for a RNN cell. This cell is the unrolled by the wrapper.
     During training, the wrapper samples from the cell, getting the output message. Evaluation-time, the sampling
     is replaced by argmax.
-
     >>> agent = nn.Linear(10, 3)
     >>> agent = RnnSenderReinforce(agent, vocab_size=5, embed_dim=5, hidden_size=3, max_len=10, cell='lstm', force_eos=False)
     >>> input = torch.FloatTensor(16, 10).uniform_(-0.1, 0.1)
