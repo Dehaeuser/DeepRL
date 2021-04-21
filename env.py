@@ -26,7 +26,11 @@ class ConceptData():
         can be used when both sender and receiver see all inputs
         """
         input_concepts = random.sample(self.voc.concept_list, self.num_distractors+1)
-        target_concept = random.sample(input_concepts, 1)
+        print("input_concepts:")
+        print(input_concepts)
+        target_concept = random.sample(input_concepts, 1)[0]
+        print("target_concept:")
+        print(target_concept)
 
         sender_input = []
         receiver_input = []

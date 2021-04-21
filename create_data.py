@@ -40,6 +40,10 @@ def main():
     #print(vocabulary.consWithAttributes.keys())
     #print("attributes zucchini:")
     #print(vocabulary.consWithAttributes['zucchini'])
+    concept_data = ConceptData(vocabulary, 9)
+    data = concept_data.getInput()
+    print("fetched input:")
+    print(data)
 
 if __name__ == '__main__':
     main()

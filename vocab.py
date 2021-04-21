@@ -1,6 +1,7 @@
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
 import tensorflow as tf
+import numpy as np
 
 class Vocabulary:
     def __init__(self):
@@ -37,7 +38,7 @@ class Vocabulary:
     def addConcept(self, animal):
         #print(animal.attributes['name'].value)
         self.num_concept += 1
-        self.concept_list.append(animal.attributes['name'].value)
+        self.concept_list.append(animal)
         attributes = self.iterateConcept(animal)
         self.consWithAttributes[animal.attributes['name'].value] = attributes
         for attribute in attributes:
@@ -56,12 +57,12 @@ class Vocabulary:
         # returns vector of lenght num_attributes
         # ones for attributes of concept, else zero
         if animal.attributes['name'].value not in self.concept2vector:
-            attributes = self.consWithAttributes[animal]
-            vector = tf.zeros(self.num_attributes)
+            attributes = self.consWithAttributes[animal.attributes['name'].value]
+            vector = np.zeros(self.num_attributes)
             for attribute in attributes:
                 vector[self.attribute2index[attribute]] = 1
-            self.concept2vector[animal.attribute['name'].value] = vector
+            self.concept2vector[animal.attributes['name'].value] = vector
         else:
-            vector = self.concept2vector[animal.attribute['name'].value]
+            vector = self.concept2vector[animal.attributes['name'].value]
 
         return vector
