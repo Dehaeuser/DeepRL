@@ -77,7 +77,7 @@ class Sender_LSTM(tf.keras.Model):
 
             message.append(single_char)
 
-            entropy.append(dist.entopy())
+            entropy.append(dist.entropy())
 
         return message, logits, entropy, state_h
         # problem: logits has shape seq_length x output_size
