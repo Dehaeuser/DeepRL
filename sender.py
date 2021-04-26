@@ -79,6 +79,9 @@ class Sender_LSTM(tf.keras.Model):
 
             entropy.append(dist.entropy())
 
+        # zip / reshape tensors to have batch_size messages with length max_len
+        # adding zeros to end of message
+
         return message, logits, entropy, state_h
         # problem: logits has shape seq_length x output_size
         # do we sample only from first output logits[0]
