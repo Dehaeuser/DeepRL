@@ -8,7 +8,7 @@ import create_data
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
 from vocab import Vocabulary
-from env import ConceptData
+from env2 import ConceptData
 from create_data import addFile
 
 vocabulary = Vocabulary()

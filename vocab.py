@@ -19,6 +19,8 @@ class Vocabulary:
         self.num_attributes = 0
         # list of concepts
         self.concept_list = []
+        # list of concepts by name
+        self.concept_list_name = []
         # list of attributes
         self.attribute_list = []
         # dict of concepts and attributes as binary vector
@@ -39,10 +41,12 @@ class Vocabulary:
         #print(animal.attributes['name'].value)
         self.num_concept += 1
         self.concept_list.append(animal)
+        self.concept_list_name.append(animal.attributes['name'].value)
         attributes = self.iterateConcept(animal)
         self.consWithAttributes[animal.attributes['name'].value] = attributes
         for attribute in attributes:
             self.addAttr(attribute)
+        vector = self.parseConcept(animal)
 
     def addAttr(self, attribute):
         if attribute not in self.attribute2index:
