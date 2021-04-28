@@ -46,7 +46,6 @@ class Vocabulary:
         self.consWithAttributes[animal.attributes['name'].value] = attributes
         for attribute in attributes:
             self.addAttr(attribute)
-        vector = self.parseConcept(animal)
 
     def addAttr(self, attribute):
         if attribute not in self.attribute2index:

@@ -21,6 +21,7 @@ def addFile(name):
     for concept in concepts:
         vocabulary.addConcept(concept)
 
+
 addFile("ANIMALS")
 addFile("APPLIANCES")
 addFile("ARTEFACTS")
@@ -38,8 +39,16 @@ addFile("TOYS")
 addFile("VEHICLES")
 addFile("WEAPONS")
 
-concept_data = ConceptData(vocabulary, 9)
+for concept in vocabulary.concept_list:
+    vocabulary.parseConcept(concept)
+
+print("number concepts:")
+print(vocabulary.num_concept)
+print("number attributes:")
+print(vocabulary.num_attributes)
+
+concept_data = ConceptData(vocabulary, 9, 32)
 data = concept_data.getInput()
 
 print("fetched input:")
-print(data)
+print(np.array(data[2]).shape)

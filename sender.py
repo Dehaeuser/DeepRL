@@ -6,15 +6,15 @@ from tensorflow.keras.layers import Layer, Dense
 from tensorflow.keras.optimizers import Adam
 import tensorflow_probability as tfp
 
-class Encoder(tf.keras.Model):
+class SenderEncoder(tf.keras.Model):
     """
     Encoder class for building speaker's Encoder
     The encoder receives a concept as binary vector
     and encodes it into a dense (embedding_dim) representation u
     """
-    def __init__(self, units=44, categories_dim=597):
+    def __init__(self, units=44, categories_dim=595):
         # TODO: categories_dim anpassen!
-        super(Encoder, self).__init__()
+        super(SenderEncoder, self).__init__()
         self.categories_dim = categories_dim
         self.input_layer = tf.keras.layers.InputLayer(input_shape=(self.categories_dim))
         self.act = tf.keras.layers.Dense(units, activation='sigmoid')
@@ -35,9 +35,8 @@ class Sender_LSTM(tf.keras.Model):
     the message of length max_m
     """
 
-    def __init__(self, vocab_size=99, embed_dim, hidden_size, max_len, training=True):
+    def __init__(self, embed_dim, num_cells, hidden_size, max_len, vocab_size=99, training=True):
         super(Sender_LSTM, self).__init__()
-        self.encoder = Encoder()
         self.vocab_size = vocab_size
         self.embed_dim = embed_dim
         self.training = training
@@ -48,7 +47,7 @@ class Sender_LSTM(tf.keras.Model):
 
         self.output_layer = tf.keras.layers.Dense(units=vocab_size, activation='softmax')
         #self.lstm = tf.keras.layers.LSTM(units=hidden_size, activation=None, return_sequences=True, return_state=True)
-        self.lstm = tf.keras.layers.RNN(cell=tf.keras.layers.LSTMCell, return_state=True)
+        self.lstm = tf.keras.layers.RNN([tf.keras.layers.LSTMCell(hidden_size) for _ in range(num_cells)], return_state=True)
 
     def call(self, input):
 
@@ -80,7 +79,10 @@ class Sender_LSTM(tf.keras.Model):
             entropy.append(dist.entropy())
 
         # zip / reshape tensors to have batch_size messages with length max_len
+        message = tf.transpose(message, perm=[1, 0])
         # adding zeros to end of message
+        zeros = tf.zeros_like(message)
+        message = tf.concat([message, zeros], 1)
 
         return message, logits, entropy, state_h
         # problem: logits has shape seq_length x output_size
