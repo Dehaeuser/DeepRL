@@ -28,6 +28,42 @@ class SenderEncoder(tf.keras.Model):
 
         return output
 
+class Sender(tf.keras.Model):
+    """
+    class that calls sender encoder
+    """
+    def __init__(self, num_options, batch_size):
+        super(Sender, self).__init__()
+        self.encoder = SenderEncoder()
+        self.num_options = num_options
+        self.batch_size = batch_size
+
+    def call(self, sender_input):
+        encoded_input = []
+        print(len(sender_input))
+        for j in range(self.batch_size):
+            batch_encoded = []
+            for i in range(self.num_options):
+                batch_encoded.append(self.encoder(sender_input[j][i]))
+            encoded_input.append(batch_encoded)
+
+        encoded_input = tf.stack(encoded_input)
+        return encoded_input
+
+class SenderOnlyTarget(tf.keras.Model):
+
+    def __init__(self, batch_size):
+        super(SenderOnlyTarget, self).__init__()
+        self.encoder = SenderEncoder()
+        self.batch_size = batch_size
+
+    def call(self, sender_input):
+        encoded_input = []
+        for j in range(self.batch_size):
+            encoded_input.append(self.encoder(sender_input[j]))
+        encoded_input = tf.stack(encoded_input)
+
+        return encoded_input
 
 class Sender_LSTM(tf.keras.Model):
     """
@@ -35,7 +71,7 @@ class Sender_LSTM(tf.keras.Model):
     the message of length max_m
     """
 
-    def __init__(self, embed_dim, num_cells, hidden_size, max_len, vocab_size=99, training=True):
+    def __init__(self, embed_dim, num_cells, hidden_size, max_len, vocab_size=99, training=True, batch_size=32, see_all_input=True):
         super(Sender_LSTM, self).__init__()
         self.vocab_size = vocab_size
         self.embed_dim = embed_dim
@@ -44,17 +80,25 @@ class Sender_LSTM(tf.keras.Model):
         self.max_len = max_len-1
         self.training = training
         #self.states = None
+        self.batch_size = batch_size
+        self.see_all_input = see_all_input
 
         self.output_layer = tf.keras.layers.Dense(units=vocab_size, activation='softmax')
         #self.lstm = tf.keras.layers.LSTM(units=hidden_size, activation=None, return_sequences=True, return_state=True)
-        self.lstm = tf.keras.layers.RNN([tf.keras.layers.LSTMCell(hidden_size) for _ in range(num_cells)], return_state=True)
+        self.lstm = tf.keras.layers.LSTM(units=num_cells, activation=None, return_state=True)
 
     def call(self, input):
+
+        if self.see_all_input:
+            input = tf.squeeze(input)
 
         message = []
         entropy = []
         logits = []
         state_h = None
+
+        print("input-shape:")
+        print(input.shape)
 
         for i in range(self.max_len):
             states = None
@@ -83,6 +127,18 @@ class Sender_LSTM(tf.keras.Model):
         # adding zeros to end of message
         zeros = tf.zeros_like(message)
         message = tf.concat([message, zeros], 1)
+
+        print("message:")
+        print(message)
+
+        #states_h.append(state_h)
+        #message.append(message_batch)
+        #logits.append(logits_batch)
+        #entropy.append(entropy_batch)
+
+
+        #print("message:")
+        #print(message)
 
         return message, logits, entropy, state_h
         # problem: logits has shape seq_length x output_size

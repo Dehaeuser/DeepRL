@@ -55,9 +55,13 @@ class ConceptData():
 
             receiver_input.append(receiver_input_batch)
 
-        sample = [sender_input, targets, receiver_input]
+        #sample = [sender_input, targets, receiver_input]
+        sender_input = np.array(sender_input)
+        receiver_input = np.array(receiver_input)
+        print("shape sender input:")
+        print(sender_input.shape)
 
-        return sample
+        return sender_input, targets, receiver_input
 
     def getInputDifferent(self):
         """
@@ -72,11 +76,11 @@ class ConceptData():
         for _ in range(self.batch_size):
 
             input_concepts = random.sample(self.voc.concept_list_name, self.num_distractors+1)
-            target_concept = random.sample(input_concepts, 1)
+            target_concept = random.sample(input_concepts, 1)[0]
             targets.append(target_concept)
 
-            sender_input_batch = self.voc.concept2vector[target_concept]
-            sender_input.append(sender_input_batch)
+            #sender_input_batch = self.voc.concept2vector[target_concept]
+            sender_input.append(self.voc.concept2vector[target_concept])
 
             receiver_input_batch = []
             for elem in input_concepts:
@@ -87,9 +91,9 @@ class ConceptData():
 
             receiver_input.append(receiver_input_batch)
 
-        sample = [sender_input, target_concept, receiver_input]
+        #sample = [sender_input, target_concept, receiver_input]
 
-        return sample
+        return sender_input, targets, receiver_input
 
 # pick target random from concepts
 

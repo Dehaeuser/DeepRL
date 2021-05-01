@@ -64,6 +64,7 @@ class Vocabulary:
             vector = np.zeros(self.num_attributes)
             for attribute in attributes:
                 vector[self.attribute2index[attribute]] = 1
+            vector = tf.constant(vector, shape=(1, 595))
             self.concept2vector[animal.attributes['name'].value] = vector
         else:
             vector = self.concept2vector[animal.attributes['name'].value]

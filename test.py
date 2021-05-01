@@ -51,4 +51,4 @@ concept_data = ConceptData(vocabulary, 9, 32)
 data = concept_data.getInput()
 
 print("fetched input:")
-print(np.array(data[2]).shape)
+print(np.array(data[1]).shape)
