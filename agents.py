@@ -81,7 +81,7 @@ class Receiver_LSTM(tf.keras.Model):
         --> Die message besteht also aus zahlen und die höchste Zahl wäre vocab_size
         """
         super(Receiver_LSTM, self).__init__()
-        self.agent = agent 
+        self.agent = agent
         self.masking_value = masking_value
         self.embed_dim = embed_dim
         self.embedding = tf.keras.layers.Embedding(vocab_size, embed_dim)
@@ -95,7 +95,7 @@ class Receiver_LSTM(tf.keras.Model):
         max_len : maximal length of message; needed for get_padded_sequence
 
         Reihenfolge (zuerst embedding layer dann padding ist von Ossenkopf übernommen)
-        
+
         Ossenkopf hat das in RnNReceiverReinforce und RnnEncoder
         """
         emb = self.embedding(message)
@@ -151,20 +151,6 @@ def get_padded_sequence(embed, lengths, batch_size, max_len, embed_dim, masking_
                     emb_list[i][j][k]= masking_value
     return tf.convert_to_tensor(emb_list)
 
-class Sender_LSTM(tf.keras.Model):
-    def __init__(self, vocab_size, embed_dim, hidden_size, max_len): #force_eos =True (pytorch; weiß nicht, ob wir das brauchen)
-        super(Sender_LSTM, self).__init__()
-#         self.embedding = tf.keras.layers.Embedding(vocab_size, embed_dim)
-#         self.embed_dim = embed_dim
-#         self.vocab_size = vocab_size
-       
-#         self.cell = tf.keras.LSTM(units = hidden_size)
-
-    def call(encoding):
-        """
-        :param:encoding: Sender's Encoder encoding of target concept
-        """
-        pass
 
 def receiver_sampling(encoding, candidate_list, num_candidates, training = True):
     """
@@ -179,7 +165,7 @@ def receiver_sampling(encoding, candidate_list, num_candidates, training = True)
     training = training
     concepts = tf.stack(candidate_list)
     #transpose
-    concepts = tf.transpose(concepts, [1,0,2])
+    #concepts = tf.transpose(concepts, [1,0,2])
     channel_input = encoding[:,:,None]
     dotproduct = tf.matmul(concepts, channel_input)
     dotproduct = tf.squeeze(dotproduct,-1)

@@ -61,7 +61,7 @@ class ConceptData():
         print("shape sender input:")
         print(sender_input.shape)
 
-        return sender_input, targets, receiver_input
+        return input_concepts, sender_input, targets, receiver_input
 
     def getInputDifferent(self):
         """
@@ -93,7 +93,7 @@ class ConceptData():
 
         #sample = [sender_input, target_concept, receiver_input]
 
-        return sender_input, targets, receiver_input
+        return input_concepts, sender_input, targets, receiver_input
 
 # pick target random from concepts
 
