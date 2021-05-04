@@ -162,10 +162,12 @@ def receiver_sampling(encoding, candidate_list, num_candidates, training = True)
     function calculates the dotproduct between the encoding and the candidate_list. Then it
     forwards it through a softmax layer and samples from it. (that the Gibbs Distribution)
     """
+   
     training = training
     concepts = tf.stack(candidate_list)
     #transpose
-    #concepts = tf.transpose(concepts, [1,0,2])
+    concepts = tf.transpose(concepts, [1,0,2])
+    print(concepts)
     channel_input = encoding[:,:,None]
     dotproduct = tf.matmul(concepts, channel_input)
     dotproduct = tf.squeeze(dotproduct,-1)
