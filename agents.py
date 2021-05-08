@@ -29,13 +29,13 @@ class Encoder(tf.keras.Model):
         output = self.act(x)
         return output
 
-class AuxillaryNetwork(tf.keras.Model):
+class AuxiliaryNetwork(tf.keras.Model):
     """
     Class receives last hidden layer of speaker LSTM.
     Returns predection of the listener's hidden layer after hearing the full message.
     """
     def __init__(self, hidden_size):
-        super(AuxillaryNetwork, self).__init__()
+        super(AuxiliaryNetwork, self).__init__()
         self.input_layer = tf.keras.layers.InputLayer(input_shape = hidden_size)
         self.empathy = tf.keras.layers.Dense(hidden_size, activation = 'sigmoid')
 
@@ -162,12 +162,12 @@ def receiver_sampling(encoding, candidate_list, num_candidates, training = True)
     function calculates the dotproduct between the encoding and the candidate_list. Then it
     forwards it through a softmax layer and samples from it. (that the Gibbs Distribution)
     """
-   
+
     training = training
     concepts = tf.stack(candidate_list)
     #transpose
     concepts = tf.transpose(concepts, [1,0,2])
-    print(concepts)
+    #print(concepts)
     channel_input = encoding[:,:,None]
     dotproduct = tf.matmul(concepts, channel_input)
     dotproduct = tf.squeeze(dotproduct,-1)

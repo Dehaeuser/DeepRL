@@ -71,8 +71,9 @@ class Sender_LSTM(tf.keras.Model):
     the message of length max_m
     """
 
-    def __init__(self, embed_dim, num_cells, hidden_size, max_len, vocab_size=99, training=True, batch_size=32, see_all_input=True):
+    def __init__(self, agent, embed_dim, num_cells, hidden_size, max_len, vocab_size=99, training=True, batch_size=32, see_all_input=True):
         super(Sender_LSTM, self).__init__()
+        self.agent = agent
         self.vocab_size = vocab_size
         self.embed_dim = embed_dim
         self.training = training
@@ -88,6 +89,8 @@ class Sender_LSTM(tf.keras.Model):
         self.lstm = tf.keras.layers.LSTM(units=num_cells, activation=None, return_state=True)
 
     def call(self, input):
+
+        input = self.agent(input)
 
         if self.see_all_input:
             input = tf.squeeze(input)
@@ -122,23 +125,21 @@ class Sender_LSTM(tf.keras.Model):
 
             entropy.append(dist.entropy())
 
+        entropy = tf.transpose(entropy, perm=[1,0])
+        zeros_ent = tf.zeros_like(entropy)
+        entropy = tf.concat([entropy, zeros_ent], 1)
+        entropy = tf.stack(entropy)
+
+        logits = tf.transpose(logits, perm=[1,0])
+        zeros_log = tf.zeros_like(logits)
+        logits = tf.concat([logits, zeros_log], 1)
+        logits = tf.stack(logits)
+
         # zip / reshape tensors to have batch_size messages with length max_len
         message = tf.transpose(message, perm=[1, 0])
         # adding zeros to end of message
         zeros = tf.zeros_like(message)
         message = tf.concat([message, zeros], 1)
-
-        print("message:")
-        print(message)
-
-        #states_h.append(state_h)
-        #message.append(message_batch)
-        #logits.append(logits_batch)
-        #entropy.append(entropy_batch)
-
-
-        #print("message:")
-        #print(message)
 
         return message, logits, entropy, state_h
         # problem: logits has shape seq_length x output_size
