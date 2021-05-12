@@ -6,9 +6,6 @@ from tensorflow.keras.layers import Layer, Dense
 from tensorflow.keras.optimizers import Adam
 import tensorflow_probability as tfp
 
-
-
-
 class Encoder(tf.keras.Model):
     """
     Encoder class for building speaker's and listener's encoder
@@ -63,7 +60,7 @@ class Receiver(tf.keras.Model):
         c_list = []
         for i in range(self.num_options):
             c_list.append(self.encoder(receiver_input[i]))
-        print(len(c_list))
+        #print(len(c_list))
         sample, log, entropy = receiver_sampling(encoded, c_list,num_distractors)
         return sample, log, entropy
 

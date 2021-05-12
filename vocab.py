@@ -61,10 +61,10 @@ class Vocabulary:
         # ones for attributes of concept, else zero
         if animal.attributes['name'].value not in self.concept2vector:
             attributes = self.consWithAttributes[animal.attributes['name'].value]
-            vector = np.zeros(self.num_attributes)
+            vector = np.zeros((1, self.num_attributes))
             for attribute in attributes:
-                vector[self.attribute2index[attribute]] = 1
-            vector = tf.constant(vector, shape=(1, 595))
+                vector[0, self.attribute2index[attribute]] = 1
+            vector = tf.convert_to_tensor(vector) # shape=(1, 595)
             self.concept2vector[animal.attributes['name'].value] = vector
         else:
             vector = self.concept2vector[animal.attributes['name'].value]

@@ -53,6 +53,7 @@ class SenderOnlyTarget(tf.Module):
         self.batch_size = batch_size
 
     def __call__(self, sender_input):
+
         encoded_input = self.encoder(sender_input)
         encoded_input = tf.stack(encoded_input)
         return encoded_input
@@ -78,7 +79,11 @@ class Sender_LSTM(tf.Module):
 
         self.output_layer = tf.keras.layers.Dense(units=vocab_size, activation='softmax')
         #self.lstm = tf.keras.layers.LSTM(units=hidden_size, activation=None, return_sequences=True, return_state=True)
-        self.lstm = tf.keras.layers.LSTM(units=num_cells, activation=None, return_sequences=False, return_state=True)
+        self.inputs = tf.keras.layers.InputLayer(input_shape=(batch_size, embed_dim))
+        self.lstm = tf.keras.layers.LSTM(units=num_cells, activation=None, return_sequences=True, return_state=True)
+        self.lstm_rest = tf.keras.layers.LSTM(units=num_cells, activation=None, return_sequences=True, return_state=True)
+        #self.lstm_rest = tf.keras.layers.LSTM(units=num_cells, activation=None, return_sequences=False, return_state=True)
+        #self.lstm_output = tf.keras.layers.LSTM(units=num_cells, activation=None, return_sequences=False, return_state=False)
 
     def __call__(self, input):
 
@@ -91,22 +96,31 @@ class Sender_LSTM(tf.Module):
         message = []
         entropy = []
         logits = []
-        state_h = None
+        # placeholder
+        output, state_h, state_c = self.lstm(input)
+        #next_output, state_h, state_c = self.lstm_rest(output)
+        #state_h = tf.zeros_like(state_h)
+        #state_c = tf.zeros_like(state_c)
+        states = [state_h, state_c]
 
         #print("input-shape:")
         #print(input.shape)
 
+        for _ in range(1):
+            input = self.inputs(input)
+            output, state_h, state_c = self.lstm(input)
+            states = [state_h, state_c]
 
         for i in range(self.max_len):
-            states = None
-            output = None
-            if i == 0:
-                output, state_h, state_c = self.lstm(input)
-                states = [state_h, state_c]
+            output, state_h, state_c = self.lstm_rest(output, initial_state=states)
+            states = [state_h, state_c]
+            #print("output_shape: ", output.shape)
+            #print("output: ", output)
+            if self.see_all_input:
+                sample_from = tf.squeeze(output)
             else:
-                output, state_h, state_c = self.lstm(input, initial_state=states)
-                states = [state_h, state_c]
-            step_probs = self.output_layer(output)
+                sample_from = output
+            step_probs = self.output_layer(sample_from)
             dist = tfp.distributions.Categorical(probs=step_probs)
 
             if self.training:
@@ -119,7 +133,19 @@ class Sender_LSTM(tf.Module):
 
             entropy.append(dist.entropy())
 
-        #print("entropy: ", entropy)
+        if not self.see_all_input:
+            message = tf.keras.layers.Lambda(lambda x: tf.concat(x, axis=1))(message)
+            entropy = tf.keras.layers.Lambda(lambda x: tf.concat(x, axis=1))(entropy)
+            logits = tf.keras.layers.Lambda(lambda x: tf.concat(x, axis=1))(logits)
+            zeros_ent = tf.zeros_like(entropy)
+            entropy = tf.concat([entropy, zeros_ent], 1)
+            zeros_log = tf.zeros_like(logits)
+            logits = tf.concat([logits, zeros_log], 1)
+            zeros = tf.zeros_like(message)
+            message = tf.concat([message, zeros], 1)
+
+            return message, logits, entropy, state_h
+
         entropy = tf.transpose(entropy, perm=[1,0])
         zeros_ent = tf.zeros_like(entropy)
         entropy = tf.concat([entropy, zeros_ent], 1)

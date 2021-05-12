@@ -60,8 +60,10 @@ class ConceptData():
         #sample = [sender_input, targets, receiver_input]
         sender_input = np.array(sender_input)
         receiver_input = np.array(receiver_input)
-        print("shape sender input:")
-        print(sender_input.shape)
+        all_input_concepts = np.array(all_input_concepts)
+        targets = np.array(targets)
+        #print("shape sender input:")
+        #print(sender_input.shape)
 
         return all_input_concepts, sender_input, targets, receiver_input
 
@@ -88,13 +90,14 @@ class ConceptData():
 
             receiver_input_batch = []
             for elem in input_concepts:
-                if elem == target_concept:
-                    receiver_input_batch.append(sender_input)
-                else:
-                    receiver_input_batch.append(self.voc.concept2vector[elem])
+                receiver_input_batch.append(self.voc.concept2vector[elem])
 
             receiver_input.append(receiver_input_batch)
 
+        sender_input = np.array(sender_input)
+        receiver_input = np.array(receiver_input)
+        all_input_concepts = np.array(all_input_concepts)
+        targets = np.array(targets)
         #sample = [sender_input, target_concept, receiver_input]
 
         return all_input_concepts, sender_input, targets, receiver_input
