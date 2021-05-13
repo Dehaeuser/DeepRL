@@ -58,10 +58,10 @@ class ConceptData():
             receiver_input.append(receiver_input_batch)
 
         #sample = [sender_input, targets, receiver_input]
-        sender_input = np.array(sender_input)
-        receiver_input = np.array(receiver_input)
-        all_input_concepts = np.array(all_input_concepts)
-        targets = np.array(targets)
+        sender_input = tf.convert_to_tensor(sender_input)
+        receiver_input = tf.convert_to_tensor(receiver_input)
+        all_input_concepts = tf.convert_to_tensor(all_input_concepts)
+        targets = tf.convert_to_tensor(targets)
         #print("shape sender input:")
         #print(sender_input.shape)
 

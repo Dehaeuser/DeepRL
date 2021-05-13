@@ -64,9 +64,9 @@ class Sender_LSTM(tf.keras.Model):
     the message of length max_m
     """
 
-    def __init__(self, embed_dim, num_cells, hidden_size, max_len, vocab_size=99, training=True, batch_size=32, see_all_input=True):
+    def __init__(self, agent, embed_dim, num_cells, hidden_size, max_len, vocab_size=99, training=True, batch_size=32, see_all_input=True):
         super(Sender_LSTM, self).__init__()
-        #self.agent = agent
+        self.agent = agent
         self.vocab_size = vocab_size
         self.embed_dim = embed_dim
         self.training = training
@@ -88,6 +88,10 @@ class Sender_LSTM(tf.keras.Model):
     def call(self, input):
 
         # preprocess input
+        input = self.agent(input)
+        if self.see_all_input:
+            input = tf.squeeze(input)
+        input = tf.transpose(input, [1, 0, 2])
 
         message = []
         entropy = []

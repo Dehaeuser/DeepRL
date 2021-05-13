@@ -31,14 +31,9 @@ class Game(tf.keras.Model):
         sender_input = tf.transpose(sender_input, [1,0,2])
         sender_input = sender_input.numpy()
 
-        sender_lstm_input = self.sender_encoder(sender_input)
-        if self.sender_all_input:
-            sender_lstm_input = tf.squeeze(sender_input)
-        sender_lstm_input = tf.transpose(sender_input, [1, 0, 2])
-
         #sender_input = self.sender_encoder(sender_input)
 
-        message, log_prob_s, entropy_s , prev_hidden = self.sender(sender_lstm_input)
+        message, log_prob_s, entropy_s , prev_hidden = self.sender(sender_input)
 
         #einer- Dimension rausbekommen
         receiver_input = tf.squeeze(tf.convert_to_tensor(receiver_input))
@@ -52,7 +47,7 @@ class Game(tf.keras.Model):
         for j in range(self.batch_size):
             output_receiver.append(input_concepts[j][sample[j]])
 
-        loss = self.main_loss(_sender_input=sender_input, _sender_lstm_input=sender_lstm_input, _message=message, _receiver_input=receiver_input, input_concepts=input_concepts, receiver_output=sample, targets=targets)
+        loss = self.main_loss(_sender_input=sender_input, _message=message, _receiver_input=receiver_input, input_concepts=input_concepts, receiver_output=sample, targets=targets)
         acc = np.mean(-loss)
         # compute effective entropy and log_prob of output before and including eos
         message_lengths = find_lengths(message)
