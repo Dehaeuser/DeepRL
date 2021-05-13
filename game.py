@@ -40,6 +40,7 @@ class Game(tf.keras.Model):
             output_receiver.append(input_concepts[j][sample[j]])
 
         loss = self.main_loss(input_concepts=input_concepts, receiver_output=sample, targets=targets)
+        acc = np.mean(-loss)
 
         # compute effective entropy and log_prob of output before and including eos
         message_lengths = find_lengths(message)
@@ -64,4 +65,4 @@ class Game(tf.keras.Model):
         log_prob = log_prob_r + effective_log_prob_s
         loss = tf.math.reduce_mean(loss * log_prob) - weighted_entropy
 
-        return loss, prev_hidden, last_hidden
+        return loss, prev_hidden, last_hidden, acc

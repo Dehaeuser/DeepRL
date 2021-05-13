@@ -6,7 +6,7 @@ from tensorflow.keras.layers import Layer, Dense
 from tensorflow.keras.optimizers import Adam
 import tensorflow_probability as tfp
 
-class SenderEncoder(tf.Module):
+class SenderEncoder(tf.keras.Model):
     """
     Encoder class for building speaker's Encoder
     The encoder receives a concept as binary vector
@@ -19,7 +19,7 @@ class SenderEncoder(tf.Module):
         self.input_layer = tf.keras.layers.InputLayer(input_shape=(self.categories_dim))
         self.act = tf.keras.layers.Dense(units, activation='sigmoid')
 
-    def __call__(self, input_concept):
+    def call(self, input_concept):
         """
         input_concept: binary list representing a concept
         """
@@ -28,7 +28,7 @@ class SenderEncoder(tf.Module):
 
         return output
 
-class Sender(tf.Module):
+class Sender(tf.keras.Model):
     """
     class that calls sender encoder
     """
@@ -38,35 +38,35 @@ class Sender(tf.Module):
         self.num_options = num_options
         self.batch_size = batch_size
 
-    def __call__(self, sender_input):
+    def call(self, sender_input):
         encoded_input = []
         for i in range(self.num_options):
             encoded_input.append(self.encoder(sender_input[i]))
         encoded_input = tf.stack(encoded_input)
         return encoded_input
 
-class SenderOnlyTarget(tf.Module):
+class SenderOnlyTarget(tf.keras.Model):
 
     def __init__(self, batch_size):
         super(SenderOnlyTarget, self).__init__()
         self.encoder = SenderEncoder()
         self.batch_size = batch_size
 
-    def __call__(self, sender_input):
+    def call(self, sender_input):
 
         encoded_input = self.encoder(sender_input)
         encoded_input = tf.stack(encoded_input)
         return encoded_input
 
-class Sender_LSTM(tf.Module):
+class Sender_LSTM(tf.keras.Model):
     """
     LSTM network of the sender that creates
     the message of length max_m
     """
 
-    def __init__(self, agent, embed_dim, num_cells, hidden_size, max_len, vocab_size=99, training=True, batch_size=32, see_all_input=True):
+    def __init__(self, embed_dim, num_cells, hidden_size, max_len, vocab_size=99, training=True, batch_size=32, see_all_input=True):
         super(Sender_LSTM, self).__init__()
-        self.agent = agent
+        #self.agent = agent
         self.vocab_size = vocab_size
         self.embed_dim = embed_dim
         self.training = training
@@ -85,13 +85,9 @@ class Sender_LSTM(tf.Module):
         #self.lstm_rest = tf.keras.layers.LSTM(units=num_cells, activation=None, return_sequences=False, return_state=True)
         #self.lstm_output = tf.keras.layers.LSTM(units=num_cells, activation=None, return_sequences=False, return_state=False)
 
-    def __call__(self, input):
+    def call(self, input):
 
         # preprocess input
-        input = self.agent(input)
-        if self.see_all_input:
-            input = tf.squeeze(input)
-        input = tf.transpose(input, [1, 0, 2])
 
         message = []
         entropy = []
