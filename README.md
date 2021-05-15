@@ -21,7 +21,7 @@ The folder contains all files needed for our reimplementation of Language Emerge
 
 ### Structure
 
-[Contribution guidelines for this project](FinalProject/Archiv.py)
+[Contribution guidelines for this project](DeepRL/FinalProject/Archiv.py)
 The Archiv contains older versions of our files tracking our progress.
 
 The visa_dataset contains all necessary files to acces the visA dataset.
