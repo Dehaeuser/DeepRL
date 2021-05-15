@@ -19,7 +19,7 @@ Solving the OpenAI gym environment [LunarLanderContinuous-v2](https://gym.openai
 ## Final Project
 The folder contains all files needed for our reimplementation of Language Emergence in Multi-Agent Systems as published in [Ossenkopf (2020)](https://openreview.net/forum?id=Hke1gySFvB).
 
-### Structure
+#### Structure
 
 The [Archive](FinalProject/Archive) contains older versions of our files tracking our progress.
 
