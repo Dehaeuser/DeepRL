@@ -38,4 +38,5 @@ To run implementation, execute file [Game_Sender_sees_all_input.ipynb](FinalProj
 ## Authors
 
 Deborah Häuser
+
 Caroline Kellner
