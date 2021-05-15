@@ -17,4 +17,4 @@ a Vanilla-DQN approach.
 Solving the OpenAI gym environment [LunarLanderContinuous-v2](https://gym.openai.com/envs/LunarLanderContinuous-v2/) using a Policy Gradient Algorithm. Implemented in two ways: 1. Actor only model, 2. Advantage Actor-Critic model
 
 ## Final Project
-Reimplementing a Language Emergence Agent as published in [Ossenkopf (2020)](https://openreview.net/forum?id=Hke1gySFvB).
+The folder contains all files needed for our reimplementation of Language Emergence in Multi-Agent Systems as published in [Ossenkopf (2020)](https://openreview.net/forum?id=Hke1gySFvB).
