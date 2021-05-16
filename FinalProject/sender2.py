@@ -12,7 +12,7 @@ class SenderEncoder(tf.keras.Model):
     The encoder receives a concept as binary vector
     and encodes it into a dense (embedding_dim) representation u
     """
-    def __init__(self, units=44, categories_dim=595):
+    def __init__(self, units, categories_dim=595):
         # TODO: categories_dim anpassen!
         super(SenderEncoder, self).__init__()
         self.categories_dim = categories_dim
@@ -32,9 +32,9 @@ class Sender(tf.keras.Model):
     """
     class that calls sender encoder
     """
-    def __init__(self, num_options, batch_size):
+    def __init__(self, hidden_size, num_options, batch_size):
         super(Sender, self).__init__()
-        self.encoder = SenderEncoder()
+        self.encoder = SenderEncoder(units=hidden_size)
         self.num_options = num_options
         self.batch_size = batch_size
 
@@ -47,9 +47,9 @@ class Sender(tf.keras.Model):
 
 class SenderOnlyTarget(tf.keras.Model):
 
-    def __init__(self, batch_size):
+    def __init__(self, hidden_size, batch_size):
         super(SenderOnlyTarget, self).__init__()
-        self.encoder = SenderEncoder()
+        self.encoder = SenderEncoder(units=hidden_size)
         self.batch_size = batch_size
 
     def call(self, sender_input):
